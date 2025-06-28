@@ -208,8 +208,8 @@ const BorrowerDetails: React.FC<BorrowerDetailsProps> = ({ borrowerId }) => {
                 <dd className="mt-1 text-sm font-medium text-gray-900">{borrower.employment}</dd>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
-                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Income</dt>
-                <dd className="mt-1 text-sm font-medium text-gray-900">{formatAmount(borrower.income)}</dd>
+                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Source of Funds</dt>
+                <dd className="mt-1 text-sm font-medium text-gray-900">{borrower.source_of_funds}</dd>
               </div>
             </div>
             <div className="space-y-4">
@@ -218,7 +218,7 @@ const BorrowerDetails: React.FC<BorrowerDetailsProps> = ({ borrowerId }) => {
                 <dd className="mt-1 text-sm font-medium">{formatCreditScore(borrower.credit_score)}</dd>
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
-                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Existing Debt</dt>
+                <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider">Existing Loan</dt>
                 <dd className="mt-1 text-sm font-medium text-gray-900">{formatAmount(borrower.existing_loan)}</dd>
               </div>
             </div>
@@ -232,7 +232,7 @@ const BorrowerDetails: React.FC<BorrowerDetailsProps> = ({ borrowerId }) => {
                   <AlertTriangle className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-amber-800">Risk Advisory</h4>
+                  <h4 className="text-sm font-medium text-amber-800">Risk Signal</h4>
                   <p className="text-sm text-amber-700 mt-1">{borrower.risk_signal}</p>
                 </div>
               </div>

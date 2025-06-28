@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MessageCircle, Cpu, ChevronRight, Star, Clock } from 'lucide-react';
+import { Phone, Mail, MessageCircle, Cpu, ChevronRight, ChevronDown, Star, Clock } from 'lucide-react';
 import OnboardingWorkflow from './OnboardingWorkflow';
 import { mockApiData } from '../../api/mockApiData';
 
@@ -20,6 +20,10 @@ interface Workflow {
 
 const BrokerOverview: React.FC = () => {
   const [isAiAssistantOn, setIsAiAssistantOn] = useState(true);
+  const [showAllSteps, setShowAllSteps] = useState(false);
+  const [expandBrokerInfo, setExpandBrokerInfo] = useState(false);
+  const [expandWorkflow, setExpandWorkflow] = useState(false);
+
   const broker: Broker = {
     ...mockApiData.broker,
     rating: 4.7,
@@ -27,8 +31,8 @@ const BrokerOverview: React.FC = () => {
     phone: '+1 (555) 123-4567',
     email: 'broker@example.com'
   };
+
   const workflow: Workflow = mockApiData.workflow;
-  const [showAllSteps, setShowAllSteps] = useState(false);
 
   const formatApprovalRate = (rate: string) => {
     const percentage = parseFloat(rate);
@@ -38,32 +42,21 @@ const BrokerOverview: React.FC = () => {
     return <span className="text-red-600 font-semibold">{rate}</span>;
   };
 
-  const renderRatingStars = (rating: number) => {
-    return (
-      <div className="flex items-center">
-        {[...Array(5)].map((_, i) => (
-          <Star 
-            key={i}
-            className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
-          />
-        ))}
-        <span className="ml-1 text-xs sm:text-sm font-medium text-gray-600">{rating.toFixed(1)}</span>
-      </div>
-    );
-  };
+  const renderRatingStars = (rating: number) => (
+    <div className="flex items-center">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+        />
+      ))}
+      <span className="ml-1 text-xs sm:text-sm font-medium text-gray-600">{rating.toFixed(1)}</span>
+    </div>
+  );
 
-  // Static click handlers
-  const handleCallClick = () => {
-    alert(`Calling broker at ${broker.phone}`);
-  };
-
-  const handleEmailClick = () => {
-    alert(`Opening email client to ${broker.email}`);
-  };
-
-  const handleChatClick = () => {
-    alert('Opening chat window with broker');
-  };
+  const handleCallClick = () => alert(`Calling broker at ${broker.phone}`);
+  const handleEmailClick = () => alert(`Opening email client to ${broker.email}`);
+  const handleChatClick = () => alert('Opening chat window with broker');
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 w-full max-w-3xl mx-auto">
@@ -72,7 +65,7 @@ const BrokerOverview: React.FC = () => {
         <div className="flex flex-col xs:flex-row gap-3 sm:gap-4">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{broker.name}</h2>
-            <div className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 mt-1">
+            <div className="hidden sm:flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-4 mt-1">
               {broker.rating && renderRatingStars(broker.rating)}
               {broker.since && (
                 <div className="flex items-center text-xs sm:text-sm text-gray-500">
@@ -85,78 +78,78 @@ const BrokerOverview: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Responsive Broker Info Accordion */}
+      <div className="sm:hidden mb-4">
+        <button
+          className="flex items-center justify-between w-full text-left text-sm font-semibold text-gray-800 mb-2"
+          onClick={() => setExpandBrokerInfo(!expandBrokerInfo)}
+        >
+          Broker Info
+          {expandBrokerInfo ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+        {expandBrokerInfo && (
+          <div className="ml-2 space-y-2">
+            {broker.rating && renderRatingStars(broker.rating)}
+            {broker.since && (
+              <div className="flex items-center text-xs text-gray-500">
+                <Clock className="w-3 h-3 mr-1" />
+                <span>Member since {broker.since}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5 mb-6 sm:mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 sm:p-4 md:p-5 rounded-xl border border-blue-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-blue-600 uppercase tracking-wider">Deals Submitted</p>
-              <p className="text-xl sm:text-xl font-bold text-gray-900 mt-1 sm:mt-2">{broker.deals}</p>
-            </div>
-          </div>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-100">
+          <p className="text-xs font-medium text-blue-600 uppercase tracking-wider">Deals Submitted</p>
+          <p className="text-xl font-bold text-gray-900 mt-2">{broker.deals}</p>
         </div>
-        
-        <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 sm:p-4 md:p-5 rounded-xl border border-green-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-green-600 uppercase tracking-wider">Approval Rate</p>
-              <p className="text-xl sm:text-xl font-bold mt-1 sm:mt-2">{formatApprovalRate(broker.approval_rate)}</p>
-            </div>
-          </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-100">
+          <p className="text-xs font-medium text-green-600 uppercase tracking-wider">Approval Rate</p>
+          <p className="text-xl font-bold mt-2">{formatApprovalRate(broker.approval_rate)}</p>
         </div>
-        
-        <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 sm:p-4 md:p-5 rounded-xl border border-amber-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-amber-600 uppercase tracking-wider">Pending Deals</p>
-              <p className="text-xl sm:text-xl font-bold text-gray-900 mt-1 sm:mt-2">${broker.pending}</p>
-            </div>
-          </div>
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-xl border border-amber-100">
+          <p className="text-xs font-medium text-amber-600 uppercase tracking-wider">Pending Deals</p>
+          <p className="text-xl font-bold text-gray-900 mt-2">${broker.pending}</p>
         </div>
       </div>
 
-      {/* Contact Actions */}
+      {/* Contact Buttons */}
       <div className="flex flex-col xs:flex-row flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8">
-        <button
-          onClick={handleCallClick}
-          className="flex-1 min-w-full xs:min-w-[calc(50%-0.5rem)] sm:min-w-[150px] flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors duration-200 shadow-xs"
-          aria-label="Call Broker"
-        >
-          <div className="p-1.5 sm:p-2 bg-blue-100 rounded-md sm:rounded-lg">
-            <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          </div>
-          <span className="text-sm sm:text-base font-medium">Call</span>
-        </button>
-        <button
-          onClick={handleEmailClick}
-          className="flex-1 min-w-full xs:min-w-[calc(50%-0.5rem)] sm:min-w-[150px] flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors duration-200 shadow-xs"
-          aria-label="Email Broker"
-        >
-          <div className="p-1.5 sm:p-2 bg-blue-100 rounded-md sm:rounded-lg">
-            <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          </div>
-          <span className="text-sm sm:text-base font-medium">Email</span>
-        </button>
-        <button
-          onClick={handleChatClick}
-          className="flex-1 min-w-full xs:min-w-[calc(50%-0.5rem)] sm:min-w-[150px] flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors duration-200 shadow-xs"
-          aria-label="Chat with Broker"
-        >
-          <div className="p-1.5 sm:p-2 bg-blue-100 rounded-md sm:rounded-lg">
-            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          </div>
-          <span className="text-sm sm:text-base font-medium">Chat</span>
-        </button>
+        {[{
+          icon: <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />,
+          label: 'Call',
+          handler: handleCallClick,
+        }, {
+          icon: <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />,
+          label: 'Email',
+          handler: handleEmailClick,
+        }, {
+          icon: <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />,
+          label: 'Chat',
+          handler: handleChatClick,
+        }].map(({ icon, label, handler }) => (
+          <button
+            key={label}
+            onClick={handler}
+            className="flex-1 min-w-full xs:min-w-[calc(50%-0.5rem)] sm:min-w-[150px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition"
+          >
+            <div className="p-2 bg-blue-100 rounded-lg">{icon}</div>
+            <span className="text-sm sm:text-base font-medium">{label}</span>
+          </button>
+        ))}
       </div>
 
-      {/* AI Assistant Toggle */}
-      <div className="flex items-center justify-between p-3 sm:p-4 md:p-5 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200 mb-6 sm:mb-8">
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <div className="p-2 sm:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+      {/* AI Assistant */}
+      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 mb-6 sm:mb-8">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 bg-blue-100 rounded-xl">
             <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-semibold text-gray-900">AI Deal Assistant</h3>
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900">AI Assistant</h3>
             <p className="text-xs sm:text-sm text-gray-500">Automated analysis and recommendations</p>
           </div>
         </div>
@@ -167,24 +160,45 @@ const BrokerOverview: React.FC = () => {
             onChange={() => setIsAiAssistantOn(!isAiAssistantOn)}
             className="sr-only peer"
           />
-          <div className="w-10 h-5 sm:w-12 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-5 sm:peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] sm:after:top-[4px] sm:after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+          <div className="w-10 h-5 sm:w-12 sm:h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-5 sm:peer-checked:after:translate-x-6 after:absolute after:top-[2px] after:left-[2px] sm:after:top-[4px] sm:after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
         </label>
       </div>
 
       {/* Onboarding Workflow */}
-      <div>
+      <div className="sm:hidden mb-4">
+        <button
+          className="flex items-center justify-between w-full text-left text-sm font-semibold text-gray-800 mb-2"
+          onClick={() => setExpandWorkflow(!expandWorkflow)}
+        >
+          Onboarding Progress
+          {expandWorkflow ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+        {expandWorkflow && (
+          <>
+            <button
+              onClick={() => setShowAllSteps(!showAllSteps)}
+              className="text-xs text-blue-600 hover:text-blue-700 flex items-center mb-2"
+            >
+              {showAllSteps ? 'Show less' : 'View all'}
+              <ChevronRight className={`w-3 h-3 ml-1 transform transition-transform ${showAllSteps ? 'rotate-90' : ''}`} />
+            </button>
+            <OnboardingWorkflow steps={showAllSteps ? workflow.steps : workflow.steps.slice(0, 3)} />
+          </>
+        )}
+      </div>
+
+      <div className="hidden sm:block">
         <div className="flex items-center justify-between mb-3 sm:mb-5">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">Onboarding Progress</h3>
           <button
-  onClick={() => setShowAllSteps(!showAllSteps)}
-  className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center"
->
-  {showAllSteps ? "Show less" : "View all"}
-  <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 ml-1 transform transition-transform ${showAllSteps ? 'rotate-90' : ''}`} />
-</button>
-
+            onClick={() => setShowAllSteps(!showAllSteps)}
+            className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center"
+          >
+            {showAllSteps ? "Show less" : "View all"}
+            <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 ml-1 transform transition-transform ${showAllSteps ? 'rotate-90' : ''}`} />
+          </button>
         </div>
-<OnboardingWorkflow steps={showAllSteps ? workflow.steps : workflow.steps.slice(0, 3)} />
+        <OnboardingWorkflow steps={showAllSteps ? workflow.steps : workflow.steps.slice(0, 3)} />
       </div>
     </div>
   );
